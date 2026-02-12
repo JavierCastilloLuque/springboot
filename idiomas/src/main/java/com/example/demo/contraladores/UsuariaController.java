@@ -23,12 +23,19 @@ import com.example.demo.modelos.UsuarioTipo;
 import com.example.demo.repositorio.TipoUsuarioRepositorio;
 import com.example.demo.repositorio.usuariaRepositorio;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/usuaria")
+@Tag(name="Usuarias", description="La lista de usuarias")
 public class UsuariaController {
 
     private final TipoUsuarioRepositorio tipoUsuarioRepositorio;
@@ -44,6 +51,11 @@ public class UsuariaController {
     }
 	
 	@GetMapping("/obtener")
+	@Operation(summary="Obtener todos los usuarios")
+	@ApiResponses({
+		@ApiResponse(responseCode="200", description="usuarias encontradas"),
+		@ApiResponse(responseCode="404", description="usuarias no encontradas")
+		})
 	public List<DTO> getUsuarios(){
 		List<DTO> listaUsariosDTO=new ArrayList<DTO>();
 		List<Usuaria> usuarios=usuRep.findAll();
@@ -96,6 +108,30 @@ public class UsuariaController {
 	}
 	
 	@PostMapping(path="/anadir1", consumes= MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary="Añadir una usuaria")
+	@ApiResponses({
+		@ApiResponse(responseCode="200", description="usuarias encontradas"),
+		@ApiResponse(responseCode="404", description="usuarias no encontradas"),
+		@ApiResponse(responseCode="500", description="Error")
+		})
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description="Json con el id de la usuaria",
+			required=true,
+			content=@Content(
+				mediaType="application/json",
+				examples=@ExampleObject(value="{"
+						+ "\"id\":1,"
+						+ "\"fechaElim\":\"2027-11-10\","
+						+ "\"fechaNac\":\"2025-08-03\","
+						+ "\"img\":\"prueba\","
+						+ "\"nombre\":\"prueba\","
+						+ "\"username\":\"pruebauser\","
+						+ "\"pass\":\"pruebapass\","
+						+ "\"rol\":1"
+						+ "}"
+				)
+			)
+		)
 	public void insertUsuario(@RequestBody DatosAltaUsuario datos, HttpServletRequest request) {
 		Usuaria u = new Usuaria();
 		
@@ -112,8 +148,17 @@ public class UsuariaController {
 	}
 	
 	@PostMapping(path="/obtener1", consumes= MediaType.APPLICATION_JSON_VALUE)
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(
+			description="Json con el id de la usuaria",
+			required=true,
+			content=@Content(
+				mediaType="application/json",
+				examples=@ExampleObject(value="{\"id\":1}")
+			)
+		)
 	public DTO getUsuaurio(@RequestBody DTO soloid, HttpServletRequest request)
-	{  DTO dtoUsuaria=new DTO();
+	{  
+	DTO dtoUsuaria=new DTO();
 	Usuaria u=usuRep.findById(Integer.parseInt(soloid.get("id").toString()));
 	 if (u!=null) {
 			dtoUsuaria.put("id", u.getId());
